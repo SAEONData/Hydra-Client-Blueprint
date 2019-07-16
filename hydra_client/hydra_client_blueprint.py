@@ -12,6 +12,17 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
     """
     Blueprint for setting up a client application to use ORY Hydra as an OAuth2 / OpenID Connect
     provider. Encapsulates :class:`OAuth2ConsumerBlueprint`, and adds logout capabilities.
+
+    Provides the following routes:
+
+    ``/login``
+        initiates a login with Hydra
+    ``/authorized``
+        callback from Hydra after successful authentication & authorization
+    ``/logout``
+        initiates a logout with Hydra
+    ``/logged_out``
+        callback from Hydra after successful logout
     """
 
     def __init__(self, name, import_name, db, user_model, token_model):
@@ -139,7 +150,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
 
     def logout(self):
         """
-        Logout from Hydra.
+        Initiate a logout from Hydra.
         """
         local_token = self.token_model.query.filter_by(provider=self.name, user_id=current_user.id).one()
         state_key = "{bp.name}_oauth_state".format(bp=self)
