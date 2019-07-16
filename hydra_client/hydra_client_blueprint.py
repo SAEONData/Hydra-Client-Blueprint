@@ -20,9 +20,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         :param user_model: User model class;
             this should be a flask_login.UserMixin or similar
         :param token_model: Token model class;
-            this should be a flask_dance.consumer.storage.sqla.OAuthConsumerMixin or similar,
-            along with a 'user_id' column referencing user_model.id, and a 'user' relationship
-            referencing the user_model
+            this should be a hydra_client.HydraTokenMixin or similar
         """
         super().__init__(
             name,
