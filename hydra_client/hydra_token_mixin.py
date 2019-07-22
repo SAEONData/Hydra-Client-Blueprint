@@ -23,7 +23,7 @@ class HydraTokenMixin(OAuthConsumerMixin):
 
     @declared_attr
     def user_id(cls):
-        return Column(String, ForeignKey(cls.user_id_column()), nullable=False)
+        return Column(String, ForeignKey(cls.user_id_column(), ondelete='CASCADE'), nullable=False)
 
     @declared_attr
     def user(cls):
