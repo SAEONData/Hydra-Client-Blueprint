@@ -66,7 +66,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         oauth_authorized.connect(self.hydra_logged_in, sender=self)
         oauth_error.connect(self.hydra_error, sender=self)
 
-        self.create_local_user = None
+        self.create_or_update_local_user = None
 
     def load_config(self):
         super().load_config()
@@ -75,20 +75,24 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         self.userinfo_url = self.hydra_public_url + '/userinfo'
         self.logout_url = self.hydra_public_url + '/oauth2/sessions/logout'
 
-    def local_user_creator(self, callback):
+    def local_user_updater(self, callback):
         """
-        Use as a decorator to set a callback for automatically creating a local user,
-        if required, upon successful authentication with Hydra.
-        The function should take a userinfo (a ``dict`` originating from the Hydra
-        userinfo endpoint) and return a user object.
+        Use as a decorator to set a callback for automatically creating or updating
+        a local user object, if required, after successful authentication with Hydra.
+        The function should take a user object (``None`` if creating) and userinfo
+        (a ``dict`` originating from the Hydra userinfo endpoint), and should return
+        the new or updated user object.
 
         For example:
         ::
-            @blueprint.local_user_creator
-            def create_local_user(userinfo):
-                return User(id=userinfo['sub'], email=userinfo['email'])
+            @blueprint.local_user_updater
+            def create_or_update_local_user(user, userinfo):
+                if not user:
+                    user = User(id=userinfo['sub'])
+                user.email = userinfo['email']
+                return user
         """
-        self.create_local_user = callback
+        self.create_or_update_local_user = callback
         return callback
 
     def hydra_logged_in(self, bp, token):
@@ -109,25 +113,24 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         userinfo = r.json()
         user_id = userinfo['sub']
 
-        # find or create the OAuth token in the DB
+        # find / create / update the local user object
+        local_user = self.user_model.query.get(user_id)
+        if self.create_or_update_local_user:
+            local_user = self.create_or_update_local_user(local_user, userinfo)
+            self.db.session.add(local_user)
+
+        if not local_user:
+            flash("User not found.", category='error')
+            return False
+
+        # find / create the OAuth token
         try:
             local_token = self.token_model.query.filter_by(provider=self.name, user_id=user_id).one()
         except NoResultFound:
             local_token = self.token_model(provider=self.name, user_id=user_id, token=token)
-
-        if not local_token.user:
-            # associate the user with the token
-            user = self.user_model.query.get(user_id)
-            if not user:
-                if self.create_local_user:
-                    user = self.create_local_user(userinfo)
-                else:
-                    flash("User not found.", category='error')
-                    return False
-
-            local_token.user = user
             self.db.session.add(local_token)
-            self.db.session.commit()
+
+        self.db.session.commit()
 
         login_user(local_token.user)
         flash("Logged in.")
