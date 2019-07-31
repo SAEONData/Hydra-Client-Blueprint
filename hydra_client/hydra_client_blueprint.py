@@ -181,3 +181,11 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
             del session[state_key]
             flash("Logged out.")
         return redirect('/')
+
+    def get_access_token(self):
+        """
+        Get the logged in user's access token.
+        :return: str
+        """
+        local_token = self.token_model.query.filter_by(provider=self.name, user_id=current_user.id).one()
+        return local_token.token['access_token']
