@@ -123,13 +123,14 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
             flash("User not found.", category='error')
             return False
 
-        # find / create the OAuth token
+        # find / create / update the OAuth token
         try:
             local_token = self.token_model.query.filter_by(provider=self.name, user_id=user_id).one()
         except NoResultFound:
-            local_token = self.token_model(provider=self.name, user_id=user_id, token=token)
-            self.db.session.add(local_token)
+            local_token = self.token_model(provider=self.name, user_id=user_id)
 
+        local_token.token = token
+        self.db.session.add(local_token)
         self.db.session.commit()
 
         login_user(local_token.user)
