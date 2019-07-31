@@ -1,5 +1,5 @@
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
@@ -17,8 +17,9 @@ class HydraTokenMixin(OAuthConsumerMixin):
         relationship to the user model
     """
 
-    # override Flask-Dance's table name and provider column defintions
+    # override Flask-Dance's table name and provider column definitions
     __tablename__ = 'hydra_token'
+    __table_args__ = (UniqueConstraint('provider', 'user_id'),)
     provider = Column(String, nullable=False, index=True)
 
     @declared_attr
