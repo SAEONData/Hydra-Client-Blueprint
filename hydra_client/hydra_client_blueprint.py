@@ -38,7 +38,6 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
             import_name,
             login_url='/login',
             authorized_url='/authorized',
-            scope=['openid'],
             storage=SQLAlchemyStorage(token_model, db.session, user=current_user),
 
             # hack to disable SSL certificate verification in a dev environment:
@@ -59,6 +58,8 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         self.from_config['hydra_public_url'] = 'HYDRA_PUBLIC_URL'
         self.from_config['client_id'] = 'HYDRA_CLIENT_ID'
         self.from_config['client_secret'] = 'HYDRA_CLIENT_SECRET'
+        self.from_config['scope'] = 'HYDRA_SCOPES'
+        self.from_config['audience'] = 'HYDRA_AUDIENCE'
 
         self.add_url_rule('/logout', view_func=self.logout)
         self.add_url_rule('/logged_out', view_func=self.logged_out)
@@ -71,6 +72,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
     def load_config(self):
         super().load_config()
         self.authorization_url = self.hydra_public_url + '/oauth2/auth'
+        self.authorization_url_params = {'audience': getattr(self, 'audience', '')}
         self.token_url = self.hydra_public_url + '/oauth2/token'
         self.userinfo_url = self.hydra_public_url + '/userinfo'
         self.logout_url = self.hydra_public_url + '/oauth2/sessions/logout'
@@ -145,7 +147,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         """
         assert self == bp
 
-        msg = "OAuth error from {name}: error={error} error_description={error_description}".format(
+        msg = "OAuth error from {name}: error={error}; error_description={error_description}".format(
             name=self.name.title(),
             error=kwargs.pop('error', ''),
             error_description=kwargs.pop('error_description', ''),
