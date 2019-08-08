@@ -167,7 +167,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         url = '{hydra_logout_url}?id_token_hint={id_token}&post_logout_redirect_uri={post_logout_redirect_uri}&state={state}'.format(
             hydra_logout_url=self.logout_url,
             post_logout_redirect_uri=logged_out_url,
-            id_token=local_token.token['id_token'],
+            id_token=local_token.token.get('id_token', ''),
             state=state_val,
         )
         return redirect(url)
