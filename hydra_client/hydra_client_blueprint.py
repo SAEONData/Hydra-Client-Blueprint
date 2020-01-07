@@ -25,9 +25,9 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         callback from Hydra after successful logout
     """
 
-    def __init__(self, name, import_name, db, user_model, token_model):
+    def __init__(self, name, import_name, db_session, user_model, token_model):
         """
-        :param db: Flask-SQLAlchemy database object
+        :param db_session: SQLAlchemy session object
         :param user_model: User model class;
             this should be a flask_login.UserMixin or similar
         :param token_model: Token model class;
@@ -38,7 +38,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
             import_name,
             login_url='/login',
             authorized_url='/authorized',
-            storage=SQLAlchemyStorage(token_model, db.session, user=current_user),
+            storage=SQLAlchemyStorage(token_model, db_session, user=current_user),
 
             # hack to disable SSL certificate verification in a dev environment:
             # this is a sneaky way to make flask-dance set the 'verify' kwarg for
@@ -47,7 +47,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
             token_url_params={'verify': get_env() != 'development'},
         )
 
-        self.db = db
+        self.db_session = db_session
         self.user_model = user_model
         self.token_model = token_model
 
@@ -116,10 +116,10 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         user_id = userinfo['sub']
 
         # find / create / update the local user object
-        local_user = self.user_model.query.get(user_id)
+        local_user = self.db_session.query(self.user_model).get(user_id)
         if self.create_or_update_local_user:
             local_user = self.create_or_update_local_user(local_user, userinfo)
-            self.db.session.add(local_user)
+            self.db_session.add(local_user)
 
         if not local_user:
             flash("User not found.", category='error')
@@ -127,13 +127,13 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
 
         # find / create / update the OAuth token
         try:
-            local_token = self.token_model.query.filter_by(provider=self.name, user_id=user_id).one()
+            local_token = self.db_session.query(self.token_model).filter_by(provider=self.name, user_id=user_id).one()
         except NoResultFound:
             local_token = self.token_model(provider=self.name, user_id=user_id)
 
         local_token.token = token
-        self.db.session.add(local_token)
-        self.db.session.commit()
+        self.db_session.add(local_token)
+        self.db_session.commit()
 
         login_user(local_token.user)
         flash("Logged in.")
@@ -158,7 +158,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         """
         Initiate a logout from Hydra.
         """
-        local_token = self.token_model.query.filter_by(provider=self.name, user_id=current_user.id).one()
+        local_token = self.db_session.query(self.token_model).filter_by(provider=self.name, user_id=current_user.id).one()
         state_key = "{bp.name}_oauth_state".format(bp=self)
         state_val = str(uuid4())
         session[state_key] = state_val
@@ -189,5 +189,5 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         Get the logged in user's access token.
         :return: str
         """
-        local_token = self.token_model.query.filter_by(provider=self.name, user_id=current_user.id).one()
+        local_token = self.db_session.query(self.token_model).filter_by(provider=self.name, user_id=current_user.id).one()
         return local_token.token['access_token']
