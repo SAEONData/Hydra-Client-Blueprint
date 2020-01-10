@@ -1,4 +1,5 @@
 from uuid import uuid4
+from enum import Enum
 
 from flask import flash, redirect, url_for, session, request
 from flask_login import current_user, login_user, logout_user
@@ -6,6 +7,11 @@ from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized, oaut
 from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from flask.helpers import get_env
 from sqlalchemy.orm.exc import NoResultFound
+
+
+class LoginMode(Enum):
+    LOGIN = 'login'
+    SIGNUP = 'signup'
 
 
 class HydraClientBlueprint(OAuth2ConsumerBlueprint):
@@ -17,6 +23,8 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
 
     ``/login``
         initiates a login with Hydra
+    ``/signup``
+        initiates a signup via Hydra login
     ``/authorized``
         callback from Hydra after successful authentication & authorization
     ``/logout``
@@ -61,6 +69,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         self.from_config['scope'] = 'HYDRA_SCOPES'
         self.from_config['audience'] = 'HYDRA_AUDIENCE'
 
+        self.add_url_rule('/signup', view_func=self.signup)
         self.add_url_rule('/logout', view_func=self.logout)
         self.add_url_rule('/logged_out', view_func=self.logged_out)
 
@@ -96,6 +105,17 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         """
         self.create_or_update_local_user = callback
         return callback
+
+    def _set_login_mode(self, mode: LoginMode):
+        self.authorization_url_params['mode'] = mode.value
+
+    def signup(self):
+        self._set_login_mode(LoginMode.SIGNUP)
+        return super().login()
+
+    def login(self):
+        self._set_login_mode(LoginMode.LOGIN)
+        return super().login()
 
     def hydra_logged_in(self, bp, token):
         """
