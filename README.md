@@ -25,11 +25,11 @@ The package should be installed into the same virtual environment as the applica
 The blueprint reads the following environment variables:
 
 - `HYDRA_PUBLIC_URL`: URL of the Hydra public API
-- `HYDRA_CLIENT_ID`: client ID of the application as registered with Hydra
-- `HYDRA_CLIENT_SECRET`: client secret of the application as registered with Hydra
-- `HYDRA_SCOPES`: a whitespace-separated list of OAuth2 scopes for which issued tokens will be valid;
+- `OAUTH2_CLIENT_ID`: client ID of the application as registered with Hydra
+- `OAUTH2_CLIENT_SECRET`: client secret of the application as registered with Hydra
+- `OAUTH2_SCOPES`: a whitespace-separated list of OAuth2 scopes for which issued tokens will be valid;
   should include at least `openid`
-- `HYDRA_AUDIENCE`: (optional) OAuth2 audience for which issued tokens will be valid
+- `OAUTH2_AUDIENCE`: (optional) OAuth2 audience for which issued tokens will be valid
 
 If running the application locally, or otherwise, on HTTP, then the following should be enabled
 (use this in development only):

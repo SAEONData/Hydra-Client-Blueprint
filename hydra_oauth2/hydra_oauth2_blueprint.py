@@ -64,10 +64,10 @@ class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
         self.logout_url = None
 
         self.from_config['hydra_public_url'] = 'HYDRA_PUBLIC_URL'
-        self.from_config['client_id'] = 'HYDRA_CLIENT_ID'
-        self.from_config['client_secret'] = 'HYDRA_CLIENT_SECRET'
-        self.from_config['scope'] = 'HYDRA_SCOPES'
-        self.from_config['audience'] = 'HYDRA_AUDIENCE'
+        self.from_config['client_id'] = 'OAUTH2_CLIENT_ID'
+        self.from_config['client_secret'] = 'OAUTH2_CLIENT_SECRET'
+        self.from_config['scope'] = 'OAUTH2_SCOPES'
+        self.from_config['audience'] = 'OAUTH2_AUDIENCE'
 
         self.add_url_rule('/signup', view_func=self.signup)
         self.add_url_rule('/logout', view_func=self.logout)
