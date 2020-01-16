@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
-version = '0.1.0'
+version = '0.2.0'
 
 setup(
-    name='Hydra-Client-Blueprint',
+    name='Hydra-OAuth2-Blueprint',
     version=version,
     description='A Flask blueprint that enables OAuth2 / OpenID Connect authentication via ORY Hydra',
-    url='https://github.com/SAEONData/Hydra-Client-Blueprint',
+    url='https://github.com/SAEONData/Hydra-OAuth2-Blueprint',
     author='Mark Jacobson',
     author_email='mark@saeon.ac.za',
     license='MIT',

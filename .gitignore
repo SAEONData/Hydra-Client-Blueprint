@@ -7,7 +7,4 @@ dist/
 build/
 *.egg-info/
 .idea/
-*.log
-*.ini
-*.yml
 .env

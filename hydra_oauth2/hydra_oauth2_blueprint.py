@@ -14,10 +14,10 @@ class LoginMode(Enum):
     SIGNUP = 'signup'
 
 
-class HydraClientBlueprint(OAuth2ConsumerBlueprint):
+class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
     """
     Blueprint for setting up a client application to use ORY Hydra as an OAuth2 / OpenID Connect
-    provider. Encapsulates :class:`OAuth2ConsumerBlueprint`, and adds logout capabilities.
+    provider. Encapsulates :class:`OAuth2ConsumerBlueprint`, and adds signup and logout capabilities.
 
     Provides the following routes:
 
@@ -39,7 +39,7 @@ class HydraClientBlueprint(OAuth2ConsumerBlueprint):
         :param user_model: User model class;
             this should be a flask_login.UserMixin or similar
         :param token_model: Token model class;
-            this should be a hydra_client.HydraTokenMixin or similar
+            this should be a hydra_oauth2.HydraTokenMixin or similar
         """
         super().__init__(
             name,
