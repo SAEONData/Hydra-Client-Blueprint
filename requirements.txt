@@ -1,5 +1,4 @@
 flask
-flask-sqlalchemy
 flask-dance[sqla]
 flask-login
 sqlalchemy
