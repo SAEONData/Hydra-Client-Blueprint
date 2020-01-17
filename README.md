@@ -22,15 +22,18 @@ The package should be installed into the same virtual environment as the applica
 
 ## Configuration
 
-The blueprint reads the following environment variables:
+The blueprint is configured through the standard Flask config API. The following options are available:
 
-- `HYDRA_PUBLIC_URL`: URL of the Hydra public API
-- `OAUTH2_CLIENT_ID`: client ID of the application as registered with Hydra
-- `OAUTH2_CLIENT_SECRET`: client secret of the application as registered with Hydra
-- `OAUTH2_SCOPES`: a whitespace-separated list of OAuth2 scopes for which issued tokens will be valid;
-  should include at least `openid`
-- `OAUTH2_AUDIENCE`: (optional) OAuth2 audience for which issued tokens will be valid
+- **`HYDRA_PUBLIC_URL`**: URL of the Hydra public API
+- **`OAUTH2_CLIENT_ID`**: client ID of the application as registered with Hydra
+- **`OAUTH2_CLIENT_SECRET`**: client secret of the application as registered with Hydra
+- **`OAUTH2_SCOPES`**: a whitespace-separated list of OAuth2 scopes for which issued tokens will be valid;
+  should include `openid` if ID tokens / user info is required
+- **`OAUTH2_AUDIENCE`**: (optional) OAuth2 audience for which issued tokens will be valid
 
-If running the application locally, or otherwise, on HTTP, then the following should be enabled
-(use this in development only):
+### Environment variables
+
+If running the application locally (or otherwise) on HTTP, then the following environment variable
+should be set. _N.B. This should be used in development only._
+
 - `OAUTHLIB_INSECURE_TRANSPORT`: set to `True` to allow OAuth2 to work over HTTP (default `False`)
