@@ -1,5 +1,0 @@
-flask
-flask-dance[sqla]
-flask-login
-sqlalchemy
-blinker

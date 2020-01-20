@@ -12,8 +12,15 @@ setup(
     license='MIT',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        # use requirements.txt
-    ],
     python_requires='~=3.6',
+    install_requires=[
+        'flask',
+        'flask-dance[sqla]',
+        'flask-login',
+        'sqlalchemy',
+        'blinker',
+    ],
+    extras_require={
+        'test': ['pytest', 'coverage']
+    },
 )
