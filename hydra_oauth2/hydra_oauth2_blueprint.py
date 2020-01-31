@@ -26,11 +26,11 @@ class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
     ``/signup``
         initiates a signup via Hydra login
     ``/authorized``
-        callback from Hydra after successful authentication & authorization
+        callback from Hydra after authentication & authorization (whether successful or not)
     ``/logout``
         initiates a logout with Hydra
     ``/logged_out``
-        callback from Hydra after successful logout
+        callback from Hydra after logout (whether successful or not)
     """
 
     def __init__(self, name, import_name, db_session, user_model, token_model):
@@ -194,7 +194,8 @@ class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
 
     def logged_out(self):
         """
-        Log the user out locally on successful Hydra logout.
+        Log the user out locally after Hydra logout.
+        TODO we should check for errors here (but still log the user out locally anyway)
         """
         state_key = "{bp.name}_oauth_state".format(bp=self)
         state_val = request.args.get('state')
