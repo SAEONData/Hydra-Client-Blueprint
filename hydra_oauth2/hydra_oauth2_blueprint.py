@@ -33,19 +33,22 @@ class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
         callback from Hydra after logout (whether successful or not)
     """
 
-    def __init__(self, name, import_name, db_session, user_model, token_model):
+    def __init__(self, name, import_name, db_session, user_model, token_model, final_redirect_view):
         """
         :param db_session: SQLAlchemy session object
         :param user_model: User model class;
             this should be a flask_login.UserMixin or similar
         :param token_model: Token model class;
             this should be a hydra_oauth2.HydraTokenMixin or similar
+        :param final_redirect_view: the endpoint to which to redirect the user
+            after login/logout has been completed
         """
         super().__init__(
             name,
             import_name,
             login_url='/login',
             authorized_url='/authorized',
+            redirect_to=final_redirect_view,
             storage=SQLAlchemyStorage(token_model, db_session, user=current_user),
 
             # hack to disable SSL certificate verification in a dev environment:
@@ -203,7 +206,7 @@ class HydraOAuth2Blueprint(OAuth2ConsumerBlueprint):
             logout_user()
             del session[state_key]
             flash("Logged out.")
-        return redirect('/')
+        return redirect(url_for(self.redirect_to))
 
     def get_access_token(self):
         """
