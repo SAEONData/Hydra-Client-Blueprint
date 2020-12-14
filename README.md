@@ -1,5 +1,7 @@
 # Hydra-OAuth2-Blueprint
 
+***This library has been superseded by the hydra_oauth2 lib module in the Open-Data-Platform project.***
+
 A [Flask](https://palletsprojects.com/p/flask/) blueprint for setting up an application as an OAuth2
 client of an [ORY Hydra](https://www.ory.sh/docs/hydra/) server. Encapsulates the `OAuth2ConsumerBlueprint`
 class provided by [Flask-Dance](https://flask-dance.readthedocs.io/en/latest/index.html), and adds signup
